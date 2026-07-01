@@ -1,6 +1,33 @@
+import { promises as fs } from "fs";
+import path from "path";
+
 const requiredFields = ["name", "phone", "email", "date", "service", "location"];
 const defaultToEmail = "lawalayo407@gmail.com";
 const defaultFromEmail = "ARI Glam <onboarding@resend.dev>";
+
+function getBookingStorePath() {
+  return process.env.BOOKING_STORE_PATH || path.join(process.cwd(), "data", "bookings.json");
+}
+
+async function saveBookingLocally(booking) {
+  const storePath = getBookingStorePath();
+  const storeDir = path.dirname(storePath);
+
+  await fs.mkdir(storeDir, { recursive: true });
+
+  let existingBookings = [];
+  try {
+    const raw = await fs.readFile(storePath, "utf8");
+    existingBookings = JSON.parse(raw);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
+
+  existingBookings.push(booking);
+  await fs.writeFile(storePath, JSON.stringify(existingBookings, null, 2));
+}
 
 function cleanBooking(raw = {}) {
   const fields = [...requiredFields, "details"];
@@ -61,6 +88,21 @@ function bookingEmailHtml(booking) {
   `;
 }
 
+function bookingEmailText(booking) {
+  return [
+    "New ARI Glam booking request",
+    "",
+    `Name: ${booking.name}`,
+    `Phone or WhatsApp: ${booking.phone}`,
+    `Email: ${booking.email}`,
+    `Event date: ${booking.date}`,
+    `Service: ${booking.service}`,
+    `Location: ${booking.location}`,
+    `Details: ${booking.details || "No extra details provided."}`,
+    `Submitted: ${booking.createdAt}`
+  ].join("\n");
+}
+
 async function sendBookingEmail(booking) {
   const apiKey = process.env.RESEND_API_KEY;
 
@@ -79,17 +121,20 @@ async function sendBookingEmail(booking) {
       to: [process.env.BOOKING_TO_EMAIL || defaultToEmail],
       reply_to: booking.email,
       subject: `New ARI Glam booking request from ${booking.name}`,
-      html: bookingEmailHtml(booking)
+      html: bookingEmailHtml(booking),
+      text: bookingEmailText(booking)
     })
   });
 
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`Email send failed: ${details}`);
+    const requestId = response.headers.get("x-request-id") || response.headers.get("resend-request-id");
+    const requestNote = requestId ? ` Request ID: ${requestId}.` : "";
+    throw new Error(`Email send failed with status ${response.status}.${requestNote} ${details}`);
   }
 }
 
-export default async function handler(req, res) {
+export async function handler(req, res) {
   if (req.method === "GET") {
     return res.status(200).json([]);
   }
@@ -108,10 +153,29 @@ export default async function handler(req, res) {
   try {
     await sendBookingEmail(booking);
   } catch (error) {
-    return res.status(500).json({
-      error: "Booking email could not be sent.",
-      nextStep: "Check RESEND_API_KEY, BOOKING_TO_EMAIL, and BOOKING_FROM_EMAIL in Vercel."
+    console.error("Booking email failed:", error);
+
+    try {
+      await saveBookingLocally(booking);
+    } catch (storageError) {
+      console.error("Booking backup save failed:", storageError);
+      return res.status(503).json({
+        error: "Booking request could not be delivered. Please email or WhatsApp ARI Glam directly.",
+        nextStep: "Check RESEND_API_KEY, BOOKING_TO_EMAIL, and BOOKING_FROM_EMAIL in Vercel."
+      });
+    }
+
+    return res.status(201).json({
+      message: "Booking request saved locally. Email delivery is currently unavailable.",
+      bookingId: booking.id,
+      savedLocally: true
     });
+  }
+
+  try {
+    await saveBookingLocally(booking);
+  } catch (storageError) {
+    console.warn("Booking archive save failed:", storageError);
   }
 
   return res.status(201).json({
@@ -119,3 +183,5 @@ export default async function handler(req, res) {
     bookingId: booking.id
   });
 }
+
+export default handler;

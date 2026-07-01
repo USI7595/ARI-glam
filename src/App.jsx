@@ -37,13 +37,18 @@ export default function App() {
         throw new Error(result.error || "Booking API unavailable");
       }
 
+      const result = await response.json();
       form.reset();
-      setStatus("Thank you. Your booking request was sent.");
-    }  catch (error) {
-  saveLocalBooking(payload);
-  form.reset();
-  setStatus(error.message);
-}
+      setStatus(
+        result.savedLocally
+          ? "Your booking request was saved, but the email could not be sent. Please email or WhatsApp ARI Glam directly."
+          : "Thank you. Your booking request was sent."
+      );
+    } catch (error) {
+      saveLocalBooking(payload);
+      form.reset();
+      setStatus("We could not send the booking email, so your request was saved in this browser. Please email or WhatsApp ARI Glam directly.");
+    }
   }
 
   return (
