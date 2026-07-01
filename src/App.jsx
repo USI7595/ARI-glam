@@ -158,9 +158,9 @@ export default function App() {
             <h2>Ready when your calendar is.</h2>
           </div>
           <div className="contact-list">
-            <a href="mailto:Oluwatosinolamide31@gmail.com">
+            <a href="ariglammakeupartistry@gmail.com">
               <Mail aria-hidden="true" size={20} strokeWidth={2.2} />
-              <span>Oluwatosinolamide31@gmail.com</span>
+              <span>ariglammakeupartistry@gmail.com</span>
             </a>
             <a href="tel:+447308725416">
               <Phone aria-hidden="true" size={20} strokeWidth={2.2} />
