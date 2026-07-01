@@ -40,3 +40,5 @@ BOOKING_FROM_EMAIL=ARI Glam <bookings@yourdomain.com>
 ```
 
 For local testing, create a `.env.local` file with the same values. Resend can send from `onboarding@resend.dev` while testing, but a real custom domain should use a verified sender like `bookings@yourdomain.com`.
+
+If email delivery is unavailable during local development, the API saves the booking in the `data/` folder. On Vercel, make sure the Resend variables are set with a verified sender address because serverless file storage is not a durable backup.
