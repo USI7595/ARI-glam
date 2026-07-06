@@ -359,6 +359,210 @@ textarea:focus {
   outline: 3px solid rgba(185, 143, 99, 0.28);
 }
 
+/* ── Phone Input Component ── */
+
+.phone-input-root {
+  position: relative;
+  width: 100%;
+}
+
+.phone-input-group {
+  display: flex;
+  gap: 0;
+}
+
+.phone-code-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 0 10px 0 12px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.phone-code-trigger:hover {
+  border-color: var(--gold);
+}
+
+.phone-code-trigger:focus-visible {
+  border-color: var(--gold);
+  outline: 3px solid rgba(185, 143, 99, 0.28);
+  outline-offset: -1px;
+}
+
+.phone-code-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.phone-code-value {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.phone-chevron {
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+
+.phone-chevron-open {
+  transform: rotate(180deg);
+}
+
+.phone-input-group input {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0 8px 8px 0;
+}
+
+/* ── Phone Dropdown ── */
+
+.phone-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  width: min(360px, calc(100vw - 36px));
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(44, 37, 36, 0.18);
+  overflow: hidden;
+  animation: phoneFadeIn 0.15s ease-out;
+}
+
+@keyframes phoneFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.phone-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.phone-search-icon {
+  position: absolute;
+  left: 20px;
+  color: var(--muted);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.phone-search-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px 8px 34px;
+  color: var(--ink);
+  background: var(--blush);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.88rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.phone-search-input::placeholder {
+  color: var(--muted);
+}
+
+.phone-search-input:focus {
+  background: white;
+  border-color: var(--gold);
+  outline: 2px solid rgba(185, 143, 99, 0.2);
+}
+
+.phone-country-list {
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+
+.phone-country-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.phone-country-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phone-country-list::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+
+.phone-country-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.phone-country-item:hover {
+  background: var(--blush);
+}
+
+.phone-country-item-active {
+  background: rgba(185, 143, 99, 0.12);
+  font-weight: 700;
+}
+
+.phone-country-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.phone-country-label {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phone-country-code {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.phone-no-results {
+  padding: 20px 10px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* ── Form Status ── */
+
 .form-status {
   min-height: 24px;
   margin: 0;
@@ -631,5 +835,10 @@ textarea:focus {
   .success-actions .btn {
     min-width: 0;
     width: 100%;
+  }
+
+  .phone-dropdown {
+    width: calc(100vw - 36px);
+    left: 0;
   }
 }
