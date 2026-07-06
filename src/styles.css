@@ -182,6 +182,11 @@ h3 {
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn-primary {
@@ -198,6 +203,26 @@ h3 {
   color: var(--ink);
   background: rgba(255, 250, 243, 0.78);
   border-color: var(--line);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 250, 243, 0.95);
+}
+
+.btn-outline {
+  color: var(--rose-dark);
+  background: transparent;
+  border-color: var(--rose-dark);
+}
+
+.btn-outline:hover {
+  background: rgba(113, 68, 76, 0.06);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .section {
@@ -341,6 +366,180 @@ textarea:focus {
   font-weight: 700;
 }
 
+/* ── Confirm Booking ── */
+
+.confirm-section {
+  display: grid;
+  gap: 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(64px, 9vw, 112px) clamp(18px, 5vw, 64px);
+}
+
+.confirm-header {
+  text-align: center;
+}
+
+.confirm-header h2 {
+  margin-top: 12px;
+}
+
+.confirm-card {
+  display: grid;
+  gap: 20px;
+  padding: clamp(24px, 4vw, 40px);
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.confirm-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.confirm-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.confirm-label {
+  color: var(--sage);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.confirm-value {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.confirm-actions .btn {
+  min-width: 200px;
+}
+
+/* ── Success Page ── */
+
+.success-section {
+  display: grid;
+  gap: 28px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(80px, 10vw, 140px) clamp(18px, 5vw, 64px);
+  text-align: center;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--rose-dark), var(--rose));
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(113, 68, 76, 0.3);
+}
+
+.success-icon svg {
+  width: 40px;
+  height: 40px;
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.success-section h2 {
+  color: var(--rose-dark);
+}
+
+.success-details {
+  display: grid;
+  gap: 12px;
+  padding: clamp(20px, 3vw, 32px);
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+.success-details h3 {
+  margin-bottom: 4px;
+  color: var(--rose-dark);
+  font-size: 1.1rem;
+}
+
+.success-details p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.success-next {
+  display: grid;
+  gap: 16px;
+  padding: clamp(20px, 3vw, 32px);
+  background: linear-gradient(135deg, rgba(185, 143, 99, 0.08), rgba(100, 112, 102, 0.06));
+  border: 1px solid rgba(185, 143, 99, 0.2);
+  border-radius: 12px;
+}
+
+.success-next h3 {
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+
+.success-next p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.success-actions .btn {
+  min-width: 200px;
+}
+
+/* ── Spinner ── */
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .contact-list {
   display: grid;
   gap: 12px;
@@ -420,6 +619,17 @@ textarea:focus {
   }
 
   .btn {
+    width: 100%;
+  }
+
+  .confirm-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .confirm-actions .btn,
+  .success-actions .btn {
+    min-width: 0;
     width: 100%;
   }
 }
