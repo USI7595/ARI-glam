@@ -249,6 +249,51 @@ function saveLocalBooking(payload) {
   localStorage.setItem(key, JSON.stringify(current));
 }
 
+function PortfolioVideo({ src, label }) {
+  const videoRef = useRef(null);
+  const [soundOn, setSoundOn] = useState(false);
+
+  function playWithSound() {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = false;
+    video.volume = 1;
+    void video.play();
+    setSoundOn(true);
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      playWithSound();
+    }
+  }
+
+  return (
+    <div className="portfolio-reel-wrap">
+      <video
+        ref={videoRef}
+        className="portfolio-reel"
+        autoPlay
+        loop
+        muted={!soundOn}
+        controls={soundOn}
+        playsInline
+        preload="metadata"
+        role="button"
+        tabIndex="0"
+        aria-label={soundOn ? `${label}, playing with sound` : `${label}. Tap to play with sound`}
+        onClick={playWithSound}
+        onKeyDown={handleKeyDown}
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+      {!soundOn && <span className="portfolio-sound-prompt">Tap for sound</span>}
+    </div>
+  );
+}
+
 export default function App() {
   const [step, setStep] = useState("form"); // "form" | "confirm" | "success"
   const [submitting, setSubmitting] = useState(false);
@@ -341,6 +386,18 @@ export default function App() {
           <>
             <section className="hero" aria-label="ARI Glam Makeup Artistry">
               <img src="/assets/ari-glam-box.jpeg" alt="ARI Glam Makeup Artistry logo on a soft cream makeup box" />
+              <video
+                className="hero-video"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                poster="/assets/ari-glam-box.jpeg"
+              >
+                <source src="/assets/ari-portfolio-background.mp4" type="video/mp4" />
+              </video>
               <div className="hero-overlay" />
               <div className="hero-content">
                 <p className="eyebrow">Makeup Artistry</p>
@@ -362,14 +419,34 @@ export default function App() {
             </section>
 
             <section className="portfolio section" id="portfolio">
+              <video
+                className="portfolio-video"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
+                poster="/assets/ari-glam-card.jpeg"
+              >
+                <source src="/assets/ari-portfolio-background.mp4" type="video/mp4" />
+              </video>
               <div className="portfolio-copy">
                 <p className="eyebrow">Portfolio</p>
-                <h2>A feminine, polished brand presence.</h2>
-                <p>Use this section for client photos, product shots, behind-the-scenes moments, or before-and-after results as the business grows.</p>
+                <h2>Soft details, luminous finishes, and beauty made for the moment.</h2>
+                <p>A glimpse of ARI Glam bridal and occasion artistry—designed to feel polished in person and unforgettable on camera.</p>
               </div>
-              <div className="portfolio-grid" aria-label="ARI Glam brand gallery">
-                <img src="/assets/ari-glam-card.jpeg" alt="ARI Glam Cosmetics and Artistry logo on cream fabric" />
-                <img src="/assets/ari-glam-box.jpeg" alt="ARI Glam logo with makeup brush artwork" />
+              <div className="portfolio-gallery" aria-label="ARI Glam makeup portfolio">
+                <figure className="portfolio-feature">
+                  <img src="/assets/bridal-glam-portrait.jpeg" alt="Bride with luminous soft glam makeup, a blonde updo, and crystal hair accessories" />
+                  <figcaption>Bridal soft glam</figcaption>
+                </figure>
+                <div className="portfolio-reels">
+                  <PortfolioVideo src="/assets/portfolio-look-01.mp4" label="ARI Glam makeup portfolio video one" />
+                  <PortfolioVideo src="/assets/portfolio-look-02.mp4" label="ARI Glam makeup portfolio video two" />
+                  <PortfolioVideo src="/assets/portfolio-look-03.mp4" label="ARI Glam makeup portfolio video three" />
+                  <PortfolioVideo src="/assets/portfolio-look-04.mp4" label="ARI Glam makeup portfolio video four" />
+                </div>
               </div>
             </section>
 
