@@ -39,13 +39,14 @@ function createBookingRequest() {
 }
 
 test('stores bookings locally when email delivery is not configured', async () => {
-  const storePath = path.join(process.cwd(), 'data', 'bookings.json');
+  const storeDir = path.join(process.cwd(), 'tmp-test-data', 'bookings');
+  const storePath = path.join(storeDir, 'bookings.json');
   const originalApiKey = process.env.RESEND_API_KEY;
   const originalStorePath = process.env.BOOKING_STORE_PATH;
 
   delete process.env.RESEND_API_KEY;
   process.env.BOOKING_STORE_PATH = storePath;
-  await fs.rm(path.dirname(storePath), { recursive: true, force: true });
+  await fs.rm(storeDir, { recursive: true, force: true });
 
   try {
     const req = createBookingRequest();
@@ -59,7 +60,7 @@ test('stores bookings locally when email delivery is not configured', async () =
     const stored = JSON.parse(await fs.readFile(storePath, 'utf8'));
     assert.equal(stored[0].email, 'ada@example.com');
   } finally {
-    await fs.rm(path.dirname(storePath), { recursive: true, force: true });
+    await fs.rm(storeDir, { recursive: true, force: true });
 
     if (originalStorePath) {
       process.env.BOOKING_STORE_PATH = originalStorePath;

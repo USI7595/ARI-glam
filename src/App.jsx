@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Mail, Phone, Check, ChevronDown, Search } from "lucide-react";
+import { defaultPortfolioMedia } from "./portfolioDefaults";
 
 const services = ["Soft Glam", "Full Glam", "Bridal Makeup", "Photoshoot Ready"];
 
@@ -301,7 +302,47 @@ export default function App() {
   const [status, setStatus] = useState("");
   const [phoneCode, setPhoneCode] = useState("+44");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [portfolioMedia, setPortfolioMedia] = useState([]);
   const year = new Date().getFullYear();
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadPortfolioMedia() {
+      try {
+        const response = await fetch("/api/media");
+        if (!response.ok) return;
+
+        const media = await response.json();
+        if (!ignore) {
+          setPortfolioMedia(Array.isArray(media) ? media : []);
+        }
+      } catch (error) {
+        if (!ignore) {
+          setPortfolioMedia([]);
+        }
+      }
+    }
+
+    loadPortfolioMedia();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const galleryMedia = [...defaultPortfolioMedia, ...portfolioMedia]
+    .map((item) => ({
+      ...item,
+      order: Number(item.order ?? 0)
+    }))
+    .filter((item, index, list) => {
+      const firstMatch = list.findIndex((candidate) => candidate.id === item.id || candidate.url === item.url);
+      return firstMatch === index;
+    })
+    .sort((first, second) => second.order - first.order);
+
+  const featuredMedia = galleryMedia[0] || defaultPortfolioMedia[0];
+  const reelMedia = galleryMedia.slice(1);
 
   function handleReview(event) {
     event.preventDefault();
@@ -375,6 +416,7 @@ export default function App() {
           {step === "form" && <a href="#portfolio">Portfolio</a>}
           {step === "form" && <a href="#booking">Book</a>}
           {step === "form" && <a href="#contact">Contact</a>}
+          <a href="/admin">Admin</a>
           {(step === "confirm" || step === "success") && (
             <a href="/" onClick={handleNewBooking}>New Booking</a>
           )}
@@ -437,15 +479,39 @@ export default function App() {
                 <p>A glimpse of ARI Glam bridal and occasion artistry—designed to feel polished in person and unforgettable on camera.</p>
               </div>
               <div className="portfolio-gallery" aria-label="ARI Glam makeup portfolio">
-                <figure className="portfolio-feature">
-                  <img src="/assets/bridal-glam-portrait.jpeg" alt="Bride with luminous soft glam makeup, a blonde updo, and crystal hair accessories" />
-                  <figcaption>Bridal soft glam</figcaption>
-                </figure>
+                {featuredMedia && featuredMedia.type === "video" ? (
+                  <figure className="portfolio-feature">
+                    <video className="portfolio-feature-media" autoPlay loop muted playsInline preload="metadata" poster="/assets/ari-glam-card.jpeg">
+                      <source src={featuredMedia.url} type="video/mp4" />
+                    </video>
+                    <figcaption>{featuredMedia.caption || "Featured portfolio"}</figcaption>
+                  </figure>
+                ) : (
+                  <figure className="portfolio-feature">
+                    <img src={featuredMedia?.url || "/assets/bridal-glam-portrait.jpeg"} alt={featuredMedia?.caption || "ARI Glam portfolio feature"} />
+                    <figcaption>{featuredMedia?.caption || ""}</figcaption>
+                  </figure>
+                )}
                 <div className="portfolio-reels">
-                  <PortfolioVideo src="/assets/portfolio-look-01.mp4" label="ARI Glam makeup portfolio video one" />
-                  <PortfolioVideo src="/assets/portfolio-look-02.mp4" label="ARI Glam makeup portfolio video two" />
-                  <PortfolioVideo src="/assets/portfolio-look-03.mp4" label="ARI Glam makeup portfolio video three" />
-                  <PortfolioVideo src="/assets/portfolio-look-04.mp4" label="ARI Glam makeup portfolio video four" />
+                  {reelMedia.length > 0 ? (
+                    reelMedia.map((item) =>
+                      item.type === "video" ? (
+                        <PortfolioVideo key={item.id || item.url} src={item.url} label={item.caption || ""} />
+                      ) : (
+                        <div key={item.id || item.url} className="portfolio-image-card">
+                          <img src={item.url} alt={item.caption || "ARI Glam portfolio image"} />
+                          <span>{item.caption || ""}</span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <>
+                      <PortfolioVideo src="/assets/portfolio-look-01.mp4" label="ARI Glam makeup portfolio video one" />
+                      <PortfolioVideo src="/assets/portfolio-look-02.mp4" label="ARI Glam makeup portfolio video two" />
+                      <PortfolioVideo src="/assets/portfolio-look-03.mp4" label="ARI Glam makeup portfolio video three" />
+                      <PortfolioVideo src="/assets/portfolio-look-04.mp4" label="ARI Glam makeup portfolio video four" />
+                    </>
+                  )}
                 </div>
               </div>
             </section>
