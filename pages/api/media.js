@@ -1,6 +1,14 @@
 import { promises as fs } from "fs";
 import path from "path";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "8mb"
+    }
+  }
+};
+
 const defaultStorePath = path.join(process.cwd(), "data", "media.json");
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 

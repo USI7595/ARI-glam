@@ -1,10 +1,34 @@
 [
   {
+    "id": "36a4b062-6025-40c5-9aeb-62f0cbb6de27",
+    "type": "image",
+    "url": "/uploads/1789249502115-WhatsApp-Image-2026-09-12-at-14.13.53.jpg",
+    "caption": "Birthday Glam",
+    "order": 7,
+    "createdAt": "2026-09-12T21:45:02.124Z"
+  },
+  {
     "id": "fb5c3728-79c8-44cc-aef5-fee4435c7c76",
     "type": "image",
     "url": "/uploads/1788136991390-WhatsApp-Image-2026-08-30-at-04.06.30.jpg",
     "caption": "Bridal Soft Glam",
     "order": 6,
     "createdAt": "2026-08-31T00:43:11.395Z"
+  },
+  {
+    "id": "b2163a5c-624e-4391-8465-c3af660f3efc",
+    "type": "image",
+    "url": "/uploads/1789248689521-test1.jpg",
+    "caption": "Hello",
+    "order": 1,
+    "createdAt": "2026-09-12T21:31:29.558Z"
+  },
+  {
+    "id": "96ff38ba-40be-4a66-bde6-b0876fbe2b5c",
+    "type": "image",
+    "url": "/uploads/1789249065095-test1.jpg",
+    "caption": "Hello",
+    "order": 1,
+    "createdAt": "2026-09-12T21:37:45.099Z"
   }
 ]

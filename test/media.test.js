@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { handler as mediaHandler } from '../pages/api/media.js';
+import { handler as mediaHandler, config as mediaConfig } from '../pages/api/media.js';
 
 function createResponse() {
   return {
@@ -22,6 +22,10 @@ function createResponse() {
     }
   };
 }
+
+test('media API exposes a larger JSON upload body parser limit for admin image uploads', () => {
+  assert.equal(mediaConfig.api.bodyParser.sizeLimit, '8mb');
+});
 
 test('media API serves portfolio media from the local store', async () => {
   const storeDir = path.join(process.cwd(), 'tmp-test-data', 'media');
