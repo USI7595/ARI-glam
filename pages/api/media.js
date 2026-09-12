@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { put } from "@vercel/blob";
 
 export const config = {
   api: {
@@ -93,6 +94,40 @@ async function saveUploadedFile(fileData, fileName) {
     throw new Error("Uploaded media was not a valid data URL.");
   }
 
+  // Use Vercel Blob Storage in production
+  if (process.env.VERCEL || process.env.NETLIFY || process.env.NODE_ENV === "production") {
+    try {
+      const extensionMap = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+        "image/svg+xml": "svg",
+        "video/mp4": "mp4",
+        "video/webm": "webm",
+        "video/quicktime": "mov",
+        "video/x-matroska": "mkv"
+      };
+
+      const extension = extensionMap[parsed.mimeType] || path.extname(fileName || "media").replace(/^\./, "") || "bin";
+      const safeName = getSafeFileName(fileName || `media-${Date.now()}`);
+      const blobName = `${Date.now()}-${safeName.replace(/\.[^/.]+$/, "")}.${extension}`;
+      
+      const buffer = Buffer.from(parsed.base64, "base64");
+      const blob = await put(blobName, buffer, {
+        access: "public",
+        contentType: parsed.mimeType
+      });
+
+      return { url: blob.url };
+    } catch (error) {
+      console.error("Blob upload failed:", error);
+      // Fallback to data URL if blob upload fails
+      return { url: fileData };
+    }
+  }
+
+  // Local development: save to public/uploads
   const extensionMap = {
     "image/jpeg": "jpg",
     "image/png": "png",

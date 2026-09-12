@@ -27,6 +27,41 @@ test('media API exposes a larger JSON upload body parser limit for admin image u
   assert.equal(mediaConfig.api.bodyParser.sizeLimit, '8mb');
 });
 
+test('media API handles production environment with graceful fallback', async () => {
+  const storeDir = path.join(process.cwd(), 'tmp-test-data', 'media-production');
+  const storePath = path.join(storeDir, 'media.json');
+  process.env.MEDIA_STORE_PATH = storePath;
+  process.env.VERCEL = '1';
+  await fs.mkdir(storeDir, { recursive: true });
+  await fs.writeFile(storePath, '[]');
+
+  try {
+    const uploadReq = {
+      method: 'POST',
+      body: {
+        file: 'data:image/jpeg;base64,AAAA',
+        fileName: 'deployed-look.jpg',
+        type: 'image',
+        caption: 'Deployed look',
+        order: 1
+      }
+    };
+
+    const uploadRes = createResponse();
+    await mediaHandler(uploadReq, uploadRes);
+
+    assert.equal(uploadRes.statusCode, 201);
+    // In production mode without valid blob credentials, it falls back to data URL
+    assert.ok(uploadRes.body.item.url, 'URL should be set');
+    assert.equal(uploadRes.body.item.caption, 'Deployed look');
+    assert.equal(uploadRes.body.item.type, 'image');
+  } finally {
+    await fs.rm(storeDir, { recursive: true, force: true });
+    delete process.env.MEDIA_STORE_PATH;
+    delete process.env.VERCEL;
+  }
+});
+
 test('media API serves portfolio media from the local store', async () => {
   const storeDir = path.join(process.cwd(), 'tmp-test-data', 'media');
   const storePath = path.join(storeDir, 'media.json');
