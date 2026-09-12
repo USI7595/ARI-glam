@@ -325,8 +325,29 @@ export default function App() {
     }
 
     loadPortfolioMedia();
+    
+    // Refresh when page comes back into focus (e.g., after uploading in admin)
+    const handleFocus = () => {
+      if (!ignore) {
+        loadPortfolioMedia();
+      }
+    };
+    
+    window.addEventListener("focus", handleFocus);
+    
+    // Also refresh when storage changes (for cross-tab sync)
+    const handleStorage = (event) => {
+      if (event.key === "ari_glam_media_updated" && !ignore) {
+        loadPortfolioMedia();
+      }
+    };
+    
+    window.addEventListener("storage", handleStorage);
+    
     return () => {
       ignore = true;
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 

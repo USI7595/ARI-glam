@@ -186,6 +186,9 @@ export default function AdminPage() {
           }
 
           setStatus({ type: "success", message: result.message || "Media updated." });
+          
+          // Signal other tabs/windows to refresh
+          localStorage.setItem("ari_glam_media_updated", Date.now().toString());
         }
       } else {
         const response = await fetch("/api/media", {
@@ -201,6 +204,9 @@ export default function AdminPage() {
         }
 
         setStatus({ type: "success", message: result.message || "Media uploaded." });
+        
+        // Signal other tabs/windows to refresh
+        localStorage.setItem("ari_glam_media_updated", Date.now().toString());
       }
 
       setForm(initialForm);
@@ -237,6 +243,10 @@ export default function AdminPage() {
       }
 
       setStatus({ type: "success", message: result.message || "Media removed." });
+      
+      // Signal other tabs/windows to refresh
+      localStorage.setItem("ari_glam_media_updated", Date.now().toString());
+      
       if (editingId === id) {
         setEditingId(null);
         setForm(initialForm);
