@@ -216,7 +216,7 @@ export async function handler(req, res) {
   if (req.method === "DELETE") {
     try {
       const { id } = req.query || {};
-      const media = await getStoredMedia();
+      const media = await readMediaStore();
       const target = media.find((item) => item.id === id);
 
       if (!target) {
@@ -226,7 +226,7 @@ export async function handler(req, res) {
       const remaining = media.filter((item) => item.id !== id);
       await writeMediaStore(remaining);
 
-      if (target.url.startsWith("/uploads/")) {
+      if (String(target.url || "").startsWith("/uploads/")) {
         const absolutePath = path.join(process.cwd(), "public", target.url.replace(/^\//, ""));
         try {
           await fs.unlink(absolutePath);
@@ -244,7 +244,7 @@ export async function handler(req, res) {
     }
   }
 
-  res.setHeader("Allow", "GET, POST, DELETE");
+  res.setHeader("Allow", "GET, POST, PUT, DELETE");
   return res.status(405).json({ error: "Method not allowed." });
 }
 
