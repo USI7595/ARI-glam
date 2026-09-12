@@ -48,6 +48,18 @@ async function readMediaStore() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
+    // In production, try /tmp as fallback
+    if ((error.code === "ENOENT" || error.code === "EACCES" || error.code === "EPERM") && process.env.VERCEL) {
+      const tmpPath = path.join("/tmp", "media.json");
+      try {
+        const raw = await fs.readFile(tmpPath, "utf8");
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (tmpError) {
+        console.warn("Could not read from /tmp either:", tmpError);
+      }
+    }
+
     if (["ENOENT", "EPERM", "EACCES"].includes(error.code)) {
       return [];
     }
@@ -63,11 +75,25 @@ async function writeMediaStore(items) {
     await fs.mkdir(path.dirname(mediaStorePath), { recursive: true });
     await fs.writeFile(mediaStorePath, JSON.stringify(items, null, 2));
   } catch (error) {
-    if (["EPERM", "EACCES"].includes(error.code)) {
-      return;
+    console.error("Failed to write media store:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    
+    // In production, try /tmp as fallback
+    if ((error.code === "EROFS" || error.code === "EACCES" || error.code === "EPERM") && process.env.VERCEL) {
+      console.warn("File system read-only, using /tmp fallback");
+      const tmpPath = path.join("/tmp", "media.json");
+      try {
+        await fs.mkdir(path.dirname(tmpPath), { recursive: true });
+        await fs.writeFile(tmpPath, JSON.stringify(items, null, 2));
+        console.log("Successfully wrote to /tmp:", tmpPath);
+      } catch (tmpError) {
+        console.error("Failed to write to /tmp:", tmpError);
+        throw new Error("Cannot write media store: file system is read-only");
+      }
+    } else {
+      throw error;
     }
-
-    throw error;
   }
 }
 
@@ -122,6 +148,7 @@ async function saveUploadedFile(fileData, fileName) {
       return { url: blob.url };
     } catch (error) {
       console.error("Blob upload failed:", error);
+      console.error("Error details:", error.message, error.code);
       // Fallback to data URL if blob upload fails
       return { url: fileData };
     }
@@ -161,6 +188,25 @@ async function getStoredMedia() {
 }
 
 export async function handler(req, res) {
+  // Debug endpoint
+  if (req.method === "GET" && req.query.debug) {
+    const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+    const isVercel = !!process.env.VERCEL;
+    const isProduction = process.env.NODE_ENV === "production";
+    
+    return res.status(200).json({
+      environment: {
+        isVercel,
+        isProduction,
+        hasBlobToken,
+        blobConfigured: hasBlobToken && (isVercel || isProduction)
+      },
+      config: {
+        bodyParserSizeLimit: config.api.bodyParser.sizeLimit
+      }
+    });
+  }
+
   if (req.method === "GET") {
     try {
       const media = await getStoredMedia();
@@ -205,7 +251,12 @@ export async function handler(req, res) {
       return res.status(201).json({ message: "Media uploaded successfully.", item: nextItem });
     } catch (error) {
       console.error("Media upload failed:", error);
-      return res.status(500).json({ error: "Media upload failed. Please try again." });
+      console.error("Error stack:", error.stack);
+      return res.status(500).json({ 
+        error: "Media upload failed.", 
+        details: error.message,
+        debug: process.env.NODE_ENV === "development" ? error.stack : undefined
+      });
     }
   }
 
